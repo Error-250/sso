@@ -1,4 +1,4 @@
-package com.sduwh.sso;
+package com.sduwh.sso.controller;
 
 import com.sduwh.sso.domain.Client;
 import com.sduwh.sso.domain.User;

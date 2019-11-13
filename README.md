@@ -11,3 +11,11 @@ grant_type     required
 
 GET   /oauth/check_token
 token          required
+
+POST /logon
+login              required
+password           required
+confirm_password   required
+role               required
+client_id          required
+email              optional
