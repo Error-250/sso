@@ -94,4 +94,8 @@ public class Client implements ClientDetails {
   public Map<String, Object> getAdditionalInformation() {
     return null;
   }
+
+  public enum ClientIdE {
+    LMS
+  }
 }
