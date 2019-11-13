@@ -6,6 +6,8 @@ import com.sduwh.sso.domain.UserGrant;
 public interface UserService {
   User findOneUserByLogin(String login);
 
+  void addUser(User user);
+
   void updateUserGrant(UserGrant userGrant);
 
   UserGrant findOneUserGrantByLogin(String login);

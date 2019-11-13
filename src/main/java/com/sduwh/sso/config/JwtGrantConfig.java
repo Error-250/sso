@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
@@ -67,7 +68,7 @@ public class JwtGrantConfig {
   @Bean
   @DependsOn({"defaultTokenServices", "auth2RequestFactory", "clientDetailsService"})
   public SsoGranter ssoGranter(
-      @Qualifier("defaultTokenServices") DefaultTokenServices defaultTokenServices,
+      @Qualifier("defaultTokenServices") AuthorizationServerTokenServices defaultTokenServices,
       OAuth2RequestFactory auth2RequestFactory,
       ClientDetailsService clientDetailsService) {
     return new SsoGranter(defaultTokenServices, clientDetailsService, auth2RequestFactory, "sso");
