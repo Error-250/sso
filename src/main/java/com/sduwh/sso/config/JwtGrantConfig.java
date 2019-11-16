@@ -1,6 +1,7 @@
 package com.sduwh.sso.config;
 
 import com.sduwh.sso.grant.Md5PasswordEncoder;
+import com.sduwh.sso.grant.SsoExceptionTranslator;
 import com.sduwh.sso.grant.SsoGranter;
 import com.sduwh.sso.grant.SsoTokenStore;
 import com.sduwh.sso.service.impl.LocalClientServiceImpl;
@@ -8,20 +9,27 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
+/**
+ * 授权相关配置
+ *
+ * @author wxp
+ */
 @Configuration
 public class JwtGrantConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
-    return new  Md5PasswordEncoder();
+    return new Md5PasswordEncoder();
   }
 
   @Bean
@@ -49,6 +57,7 @@ public class JwtGrantConfig {
   }
 
   @Bean
+  @Primary
   @DependsOn({"accessTokenConverter", "tokenStore", "clientDetailsService"})
   public DefaultTokenServices defaultTokenServices(
       JwtAccessTokenConverter jwtAccessTokenConverter,
@@ -63,6 +72,11 @@ public class JwtGrantConfig {
     defaultTokenServices.setTokenStore(tokenStore);
     defaultTokenServices.setTokenEnhancer(jwtAccessTokenConverter);
     return defaultTokenServices;
+  }
+
+  @Bean
+  public WebResponseExceptionTranslator exceptionTranslator() {
+    return new SsoExceptionTranslator();
   }
 
   @Bean

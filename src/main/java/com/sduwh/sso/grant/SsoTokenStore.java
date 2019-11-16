@@ -10,6 +10,15 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 import javax.annotation.Resource;
 
+/**
+ * 自定义token存储.
+ * 首次登录时token存入数据库.
+ * 第二次到第N次登录时, 从数据库读入, 只要该token不过期, 登陆成功时都返回该token.
+ * 直到数据库token过期, 重新生成token返回 并存入数据库.
+ * 即: 任意一个时刻对同一个用户只有一个token有效.
+ *
+ * @author wxp
+ */
 public class SsoTokenStore extends JwtTokenStore {
   @Resource private UserService userService;
 

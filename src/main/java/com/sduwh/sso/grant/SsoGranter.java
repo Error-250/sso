@@ -15,6 +15,11 @@ import java.security.InvalidParameterException;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * 自定义授权
+ *
+ * @author wxp
+ */
 public class SsoGranter extends AbstractTokenGranter {
   @Resource private UserService userService;
   @Resource private PasswordEncoder passwordEncoder;
