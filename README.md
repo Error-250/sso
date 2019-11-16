@@ -12,7 +12,7 @@ Use oauth2.0 + jwt implement authentication server
     |password      | required|string|密码|
     |grant_type    | required|enum|授权类型| 目前只有SSO
     
-    > Example for response
+    > Example for success response
     ```json
     {
         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzM5MTExMzksInVzZXJfbmFtZSI6IjIwMTQwMDgwMDUwMSIsImF1dGhvcml0aWVzIjpbIkFETUlOIl0sImp0aSI6IjBlMjUyNGU1LTc5YzItNGMzNC1iZDk0LTkwMmE3YmQ4ZmQ4YSIsImNsaWVudF9pZCI6IkxNUyIsInNjb3BlIjpbIk9QRU4iXX0.4PUbKn0gs0-vY-JoHea3vzM64XTZJYKK4z-k5IBzfLg",
@@ -26,6 +26,14 @@ Use oauth2.0 + jwt implement authentication server
         "jti": "0e2524e5-79c2-4c34-bd94-902a7bd8fd8a"
     }
     ```
+    > Example for fail response
+    ```json
+    {
+        "error": "invalid_grant",
+        "error_description": "Grant fail",
+        "code": "102003"
+    }
+    ```
 
 + GET   /oauth/check_token
 
@@ -33,7 +41,7 @@ Use oauth2.0 + jwt implement authentication server
     |------------- |---------|-----|----------|----
     |token         | required|string|accessToken|
     
-    > Example for response
+    > Example for success response
     ```json
     {
         "exp": 1573922325,
@@ -46,6 +54,14 @@ Use oauth2.0 + jwt implement authentication server
         "scope": [
             "OPEN"
         ]
+    }
+    ```
+    > Example for fail response
+    ```json
+    {
+        "error": "invalid_request",
+        "error_description": "Token has expired",
+        "code": "999001"
     }
     ```
     
@@ -61,7 +77,7 @@ Use oauth2.0 + jwt implement authentication server
     |client_id        |required|enum|客户端id|目前支持一种: LMS
     |email            |optional|string|邮箱|未来支持修改密码有用
     
-    > Example for response
+    > Example for success response
     ```json
     {
         "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzM5MTE4NTMsInVzZXJfbmFtZSI6IjIwMTUwMDgwMDUwMSIsImF1dGhvcml0aWVzIjpbIlNUVURFTlQiXSwianRpIjoiOTk5NzZiZGUtNTM4Ny00MzQwLWJhNzMtYmI1NDYzM2YyYzA4IiwiY2xpZW50X2lkIjoiTE1TIiwic2NvcGUiOlsiT1BFTiJdfQ.4QgWdJaFFUMNpI3o5MJtjdJJXFgdV1U2AMxmROhGq68",
@@ -71,6 +87,14 @@ Use oauth2.0 + jwt implement authentication server
         "jti": "99976bde-5387-4340-ba73-bb54633f2c08"
     }
     ```
+    > Example for fail response
+    ```json
+    {
+        "code": 101001,
+        "message": "INPUT_FIELD_INVALID"
+    }
+    ```
+  
     
 + GET /v1/users 管理员使用
 
@@ -80,7 +104,7 @@ Use oauth2.0 + jwt implement authentication server
     |limit         |optional |int   |limit|默认10
     |offset        |optional |int   |offset|默认0
     
-    > Example for response
+    > Example for success response
     ```json
     [
         {
@@ -120,6 +144,13 @@ Use oauth2.0 + jwt implement authentication server
         }
     ]
     ```
+    > Example for fail response
+    ```json
+    {
+        "error": "invalid_token",
+        "error_description": "Access token expired: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzM5MTExMzksInVzZXJfbmFtZSI6IjIwMTQwMDgwMDUwMSIsImF1dGhvcml0aWVzIjpbIkFETUlOIl0sImp0aSI6IjBlMjUyNGU1LTc5YzItNGMzNC1iZDk0LTkwMmE3YmQ4ZmQ4YSIsImNsaWVudF9pZCI6IkxNUyIsInNjb3BlIjpbIk9QRU4iXX0.4PUbKn0gs0-vY-JoHea3vzM64XTZJYKK4z-k5IBzfLg"
+    }
+    ```
   
 + PUT /v1/users/authorize   管理员使用
 
@@ -134,4 +165,11 @@ Use oauth2.0 + jwt implement authentication server
         "code": 0
     }
     ```
-  授权不会立刻生效  需要重新登录
+    > Example for fail response
+    ```json
+    {
+        "code": 103001,
+        "message": "RESOURCE_NOT_FOUND: user"
+    }
+    ```
+    授权不会立刻生效  需要重新登录
