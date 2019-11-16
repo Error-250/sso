@@ -20,9 +20,6 @@ Use oauth2.0 + jwt implement authentication server
         "expires_in": 2905,
         "scope": "OPEN",
         "user_name": "201400800501",
-        "authorities": [
-            "ADMIN"
-        ],
         "jti": "0e2524e5-79c2-4c34-bd94-902a7bd8fd8a"
     }
     ```
