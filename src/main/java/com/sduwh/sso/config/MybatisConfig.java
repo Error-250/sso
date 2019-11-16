@@ -10,6 +10,11 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.List;
 
+/**
+ * mybatis全局配置
+ *
+ * @author wxp
+ */
 @Configuration
 @EnableTransactionManagement
 public class MybatisConfig {
@@ -17,7 +22,9 @@ public class MybatisConfig {
   @Bean
   public ConfigurationCustomizer configurationCustomizer() {
     return (configuration -> {
+      // 使用驼峰命名
       configuration.setMapUnderscoreToCamelCase(true);
+      // 对List<User.Role>使用自定义数据库类型转换器
       configuration
           .getTypeHandlerRegistry()
           .register(new TypeReference<List<User.Role>>() {}, new UserRoleHandler());

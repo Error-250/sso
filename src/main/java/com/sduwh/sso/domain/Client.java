@@ -11,6 +11,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * 客户端
+ *
+ * @author wxp
+ */
 @Data
 public class Client implements ClientDetails {
   private String id;
@@ -96,6 +101,9 @@ public class Client implements ClientDetails {
   }
 
   public enum ClientIdE {
+    /*
+    学习管理系统client Id
+     */
     LMS
   }
 }

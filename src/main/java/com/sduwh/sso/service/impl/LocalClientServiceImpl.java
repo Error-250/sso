@@ -7,6 +7,9 @@ import org.springframework.security.oauth2.provider.ClientRegistrationException;
 
 import javax.annotation.Resource;
 
+/**
+ * @author wxp
+ */
 public class LocalClientServiceImpl implements ClientDetailsService {
   @Resource private ClientMapper clientMapper;
 

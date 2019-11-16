@@ -8,16 +8,23 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 
 import javax.annotation.Resource;
 
+/**
+ * 授权服务器配置
+ *
+ * @author wxp
+ */
 @Configuration
 @EnableAuthorizationServer
 public class AuthenticationServerConfig extends AuthorizationServerConfigurerAdapter {
   @Resource private ClientDetailsService clientDetailsService;
   @Resource private TokenStore tokenStore;
   @Resource private SsoGranter ssoGranter;
+  @Resource private WebResponseExceptionTranslator exceptionTranslator;
 
   @Override
   public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -26,7 +33,9 @@ public class AuthenticationServerConfig extends AuthorizationServerConfigurerAda
 
   @Override
   public void configure(AuthorizationServerSecurityConfigurer security) throws Exception {
+    // 允许通过表单授权客户端
     security.allowFormAuthenticationForClients();
+    // 允许使用检查token的接口
     security.checkTokenAccess("permitAll()");
   }
 
@@ -34,5 +43,6 @@ public class AuthenticationServerConfig extends AuthorizationServerConfigurerAda
   public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
     endpoints.tokenGranter(ssoGranter);
     endpoints.tokenStore(tokenStore);
+    endpoints.exceptionTranslator(exceptionTranslator);
   }
 }

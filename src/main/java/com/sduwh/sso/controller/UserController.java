@@ -1,81 +1,71 @@
 package com.sduwh.sso.controller;
 
-import com.sduwh.sso.domain.Client;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.sduwh.sso.domain.OperationResponse;
 import com.sduwh.sso.domain.User;
-import com.sduwh.sso.grant.SsoGranter;
+import com.sduwh.sso.domain.UserAdditionalField;
+import com.sduwh.sso.domain.view.AdminView;
+import com.sduwh.sso.exception.resource.ResourceNotFoundException;
 import com.sduwh.sso.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
-import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.OAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.TokenRequest;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.security.InvalidParameterException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
+/**
+ * 用户相关controller
+ *
+ * @author wxp
+ */
 @RestController
+@RequestMapping("/v1")
 public class UserController {
   @Resource private UserService userService;
-  @Resource private PasswordEncoder passwordEncoder;
-  @Resource private OAuth2RequestFactory oAuth2RequestFactory;
-  @Resource private ClientDetailsService clientDetailsService;
-  @Resource private SsoGranter ssoGranter;
 
-  @RequestMapping(value = "/logon", method = RequestMethod.POST)
-  public ResponseEntity<OAuth2AccessToken> logon(
-      @RequestParam("login") String login,
-      @RequestParam("password") String password,
-      @RequestParam("confirm_password") String confirmPassword,
-      @RequestParam("role") User.Role role,
-      @RequestParam("client_id") Client.ClientIdE clientIdE,
-      @RequestParam(value = "email", required = false) String email) {
-    boolean isParamValid =
-        !StringUtils.isEmpty(login)
-            && !StringUtils.isEmpty(password)
-            && !StringUtils.isEmpty(confirmPassword)
-            && password.equals(confirmPassword)
-            && (User.Role.STUDENT.equals(role) || User.Role.TEACHER.equals(role));
-    if (!isParamValid) {
-      throw new InvalidParameterException();
+  @RequestMapping(value = "/users", method = RequestMethod.GET)
+  @PreAuthorize("hasAuthority('ADMIN')")
+  @JsonView(AdminView.class)
+  public ResponseEntity<List<User>> findUsers(
+      @RequestParam(value = "login", required = false) String login,
+      @RequestParam(value = "limit", defaultValue = "10") int limit,
+      @RequestParam(value = "offset", defaultValue = "0") int offset) {
+    int maxLimit = 200;
+    if (limit < 0) {
+      limit = 0;
+    } else if (limit > maxLimit) {
+      limit = maxLimit;
     }
-    if (User.Role.STUDENT.equals(role)) {
-      int currentYear = LocalDate.now().getYear();
-      boolean isLoginValid =
-          login.length() == 12 && Integer.parseInt(login.substring(0, 4)) >= currentYear - 6;
-      if (!isLoginValid) {
-        throw new InvalidParameterException();
-      }
+    if (offset < 0) {
+      offset = 0;
     }
-    Client client = (Client) clientDetailsService.loadClientByClientId(clientIdE.name());
-    if (client == null) {
-      throw new InvalidClientException(clientIdE.name());
+    User filter = new User();
+    if (!StringUtils.isEmpty(login)) {
+      filter.setLogin(login);
     }
-    User user = userService.findOneUserByLogin(login);
-    if (user != null) {
-      throw new InvalidGrantException("User is existed");
+    return ResponseEntity.ok(
+        userService.findUserByTemplate(
+            filter, limit, offset, Collections.singletonList(UserAdditionalField.LAST_GRANT)));
+  }
+
+  @RequestMapping(value = "/users/authorize", method = RequestMethod.PUT)
+  @PreAuthorize("hasAuthority('ADMIN')")
+  public ResponseEntity<OperationResponse> authorizeUser(
+      @RequestParam("user_id") Long userId, @RequestParam("role") User.Role role) {
+    User user = userService.findOneUserById(userId);
+    if (user == null) {
+      throw new ResourceNotFoundException("user");
     }
-    User newUser = new User();
-    newUser.setLogin(login);
-    newUser.setPassword(passwordEncoder.encode(password));
-    newUser.setEmail(email);
-    newUser.setRole(role);
-    userService.addUser(newUser);
-    // 获取token
-    Map<String, String> param = new HashMap<>(2);
-    param.put("username", login);
-    param.put("password", password);
-    TokenRequest request = oAuth2RequestFactory.createTokenRequest(param, client);
-    return ResponseEntity.ok(ssoGranter.grant(client.getGrantType().toLowerCase(), request));
+    user.setRole(role);
+    userService.updateUser(user);
+    OperationResponse response = new OperationResponse();
+    response.setCode(0);
+    return ResponseEntity.ok(response);
   }
 }

@@ -13,13 +13,20 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 数据库类型转换 List<User.Role> to String
+ *
+ * @author wxp
+ */
 public class UserRoleHandler implements TypeHandler<List<User.Role>> {
+  private String delimiter = ",";
+
   @Override
   public void setParameter(
       PreparedStatement preparedStatement, int i, List<User.Role> roles, JdbcType jdbcType)
       throws SQLException {
     preparedStatement.setString(
-        i, roles.stream().map(User.Role::name).collect(Collectors.joining(",")));
+        i, roles.stream().map(User.Role::name).collect(Collectors.joining(delimiter)));
   }
 
   @Override
@@ -28,7 +35,7 @@ public class UserRoleHandler implements TypeHandler<List<User.Role>> {
     if (StringUtils.isEmpty(roles)) {
       return null;
     }
-    return Lists.newArrayList(roles.split(",")).stream()
+    return Lists.newArrayList(roles.split(delimiter)).stream()
         .map(User.Role::valueOf)
         .collect(Collectors.toList());
   }
@@ -39,7 +46,7 @@ public class UserRoleHandler implements TypeHandler<List<User.Role>> {
     if (StringUtils.isEmpty(roles)) {
       return null;
     }
-    return Lists.newArrayList(roles.split(",")).stream()
+    return Lists.newArrayList(roles.split(delimiter)).stream()
         .map(User.Role::valueOf)
         .collect(Collectors.toList());
   }
@@ -50,7 +57,7 @@ public class UserRoleHandler implements TypeHandler<List<User.Role>> {
     if (StringUtils.isEmpty(roles)) {
       return null;
     }
-    return Lists.newArrayList(roles.split(",")).stream()
+    return Lists.newArrayList(roles.split(delimiter)).stream()
         .map(User.Role::valueOf)
         .collect(Collectors.toList());
   }
